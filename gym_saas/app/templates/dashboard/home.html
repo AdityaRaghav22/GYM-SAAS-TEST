@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | Anchor{% endblock %}
+
+{% block header_title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- ================= WELCOME HEADER ================= -->
+<div class="mb-10 animate-fade-in">
+    <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Overview</h2>
+    <p class="text-slate-500 font-medium mt-1">Manage your gym operations from one central hub.</p>
+</div>
+
+<!-- ================= MANAGEMENT MODULES (QUICK ACTIONS) ================= -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10 animate-fade-in" style="animation-delay: 100ms;">
+
+    <!-- Members Card -->
+    <a href="{{ url_for('api_v1.member.list_member') }}" 
+       class="group bg-white p-8 rounded-[2.5rem] border border-slate-100 hover:border-indigo-200 shadow-sm hover:shadow-xl hover:shadow-indigo-50 transition-all duration-300 relative overflow-hidden flex flex-col items-center text-center">
+        <div class="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mb-6 transition-transform group-hover:scale-110 group-hover:-rotate-6">
+            <i class="fas fa-user-friends text-2xl"></i>
+        </div>
+        <h4 class="text-xl font-bold mb-2 text-slate-900">Members</h4>
+        <p class="text-slate-500 text-sm mb-6 leading-relaxed">Manage gym members</p>
+        <div class="mt-auto w-full">
+            <span class="inline-flex items-center justify-center w-full bg-indigo-50 text-indigo-700 py-3 rounded-xl text-sm font-bold group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                View Members <i class="fas fa-arrow-right ml-2"></i>
+            </span>
+        </div>
+    </a>
+
+    <!-- Plans Card -->
+    <a href="{{ url_for('api_v1.plan.list_plan') }}" 
+       class="group bg-white p-8 rounded-[2.5rem] border border-slate-100 hover:border-emerald-200 shadow-sm hover:shadow-xl hover:shadow-emerald-50 transition-all duration-300 relative overflow-hidden flex flex-col items-center text-center">
+        <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-6 transition-transform group-hover:scale-110 group-hover:-rotate-6">
+            <i class="fas fa-layer-group text-2xl"></i>
+        </div>
+        <h4 class="text-xl font-bold mb-2 text-slate-900">Plans</h4>
+        <p class="text-slate-500 text-sm mb-6 leading-relaxed">Membership plans</p>
+        <div class="mt-auto w-full">
+            <span class="inline-flex items-center justify-center w-full bg-emerald-50 text-emerald-700 py-3 rounded-xl text-sm font-bold group-hover:bg-emerald-600 group-hover:text-white transition-all">
+                View Plans <i class="fas fa-arrow-right ml-2"></i>
+            </span>
+        </div>
+    </a>
+
+    <!-- Memberships Card -->
+    <a href="{{ url_for('api_v1.membership.list_membership') }}" 
+       class="group bg-white p-8 rounded-[2.5rem] border border-slate-100 hover:border-slate-800 shadow-sm hover:shadow-xl hover:shadow-slate-200 transition-all duration-300 relative overflow-hidden flex flex-col items-center text-center">
+        <div class="w-16 h-16 bg-slate-100 text-slate-700 rounded-2xl flex items-center justify-center mb-6 transition-transform group-hover:scale-110 group-hover:-rotate-6">
+            <i class="fas fa-check-double text-2xl"></i>
+        </div>
+        <h4 class="text-xl font-bold mb-2 text-slate-900">Memberships</h4>
+        <p class="text-slate-500 text-sm mb-6 leading-relaxed">Active memberships</p>
+        <div class="mt-auto w-full">
+            <span class="inline-flex items-center justify-center w-full bg-slate-100 text-slate-700 py-3 rounded-xl text-sm font-bold group-hover:bg-slate-900 group-hover:text-white transition-all">
+                View Memberships <i class="fas fa-arrow-right ml-2"></i>
+            </span>
+        </div>
+    </a>
+
+    <!-- Payments Card -->
+    <a href="{{ url_for('api_v1.payment.list_payment') }}" 
+       class="group bg-white p-8 rounded-[2.5rem] border border-slate-100 hover:border-amber-200 shadow-sm hover:shadow-xl hover:shadow-amber-50 transition-all duration-300 relative overflow-hidden flex flex-col items-center text-center">
+        <div class="w-16 h-16 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mb-6 transition-transform group-hover:scale-110 group-hover:-rotate-6">
+            <i class="fas fa-receipt text-2xl"></i>
+        </div>
+        <h4 class="text-xl font-bold mb-2 text-slate-900">Payments</h4>
+        <p class="text-slate-500 text-sm mb-6 leading-relaxed">Payment history</p>
+        <div class="mt-auto w-full">
+            <span class="inline-flex items-center justify-center w-full bg-amber-50 text-amber-700 py-3 rounded-xl text-sm font-bold group-hover:bg-amber-600 group-hover:text-white transition-all">
+                View Payments <i class="fas fa-arrow-right ml-2"></i>
+            </span>
+        </div>
+    </a>
+
+</div>
+
+<!-- ================= WELCOME / INFO BANNER ================= -->
+<div class="relative bg-white rounded-[2.5rem] p-8 md:p-10 overflow-hidden shadow-sm border border-slate-100 animate-fade-in" style="animation-delay: 200ms;">
+    <!-- Decorative background -->
+    <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-50 rounded-full blur-[80px] opacity-60 -translate-y-1/2 translate-x-1/2"></div>
+    
+    <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div>
+            <h5 class="text-slate-900 text-2xl font-extrabold mb-2 tracking-tight">Welcome 👋</h5>
+            <p class="text-slate-500 font-medium leading-relaxed max-w-2xl">
+                Use the dashboard to manage members, plans, memberships, and payments.
+                This system is designed to simplify daily gym operations.
+            </p>
+        </div>
+        
+        <!-- Optional Decorative Icon/Status -->
+        <div class="hidden md:block text-indigo-600 opacity-20">
+            <i class="fas fa-dumbbell text-6xl"></i>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

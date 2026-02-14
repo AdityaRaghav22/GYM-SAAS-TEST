@@ -1,0 +1,427 @@
+{% extends "base.html" %}
+
+{% block title %}Members | Gym SaaS{% endblock %}
+
+{% block content %}
+<!-- Importing Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=Space+Mono:wght@400;700&display=swap"
+    rel="stylesheet">
+
+<style>
+    /* --- Theme Configuration --- */
+    :root {
+        --bg-color: #f0f0f0;
+        --card-bg: #ffffff;
+        --primary: #3b82f6;
+        --text-main: #18181b;
+        --border-color: #000000;
+        --border-width: 3px;
+        --shadow-depth: 6px;
+        --success-bg: #4ade80;
+        /* Bright Green */
+        --inactive-bg: #d1d5db;
+        /* Grey */
+    }
+
+    body {
+        font-family: 'Space Grotesk', sans-serif;
+        background-color: var(--bg-color);
+        background-image: radial-gradient(#000000 1px, transparent 1px);
+        background-size: 20px 20px;
+        color: var(--text-main);
+    }
+
+    /* --- Layout Components --- */
+    .boxy-container {
+        width: 100%;
+        max-width: 900px;
+        /* Wider for table */
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .boxy-card {
+        background: var(--card-bg);
+        border: var(--border-width) solid var(--border-color);
+        box-shadow: var(--shadow-depth) var(--shadow-depth) 0px var(--border-color);
+        margin-bottom: 3rem;
+        position: relative;
+    }
+
+    .card-header-boxy {
+        background: var(--primary);
+        border-bottom: var(--border-width) solid var(--border-color);
+        padding: 1rem 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .card-header-boxy h2 {
+        color: white;
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-family: 'Space Mono', monospace;
+    }
+
+    .card-body-boxy {
+        padding: 1.5rem;
+    }
+
+    /* --- Form Elements --- */
+    .add-member-form {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .boxy-input {
+        flex: 1;
+        min-width: 200px;
+        padding: 0.75rem 1rem;
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1rem;
+        border: 2px solid var(--border-color);
+        background: #fff;
+        outline: none;
+        border-radius: 0;
+        transition: all 0.2s;
+    }
+
+    .boxy-input:focus {
+        background: #eef2ff;
+        box-shadow: 4px 4px 0px var(--border-color);
+        transform: translate(-2px, -2px);
+    }
+
+    .btn-add {
+        background: black;
+        color: white;
+        border: 2px solid black;
+        padding: 0 2rem;
+        font-family: 'Space Mono', monospace;
+        font-weight: 700;
+        text-transform: uppercase;
+        cursor: pointer;
+        box-shadow: 4px 4px 0px var(--primary);
+        transition: all 0.1s;
+    }
+
+    .btn-add:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 6px 6px 0px var(--primary);
+        background: var(--primary);
+    }
+
+    .btn-add:active {
+        transform: translate(2px, 2px);
+        box-shadow: 0px 0px 0px black;
+    }
+
+    /* --- Table Styling --- */
+    .table-container {
+        overflow-x: auto;
+        /* Responsive table */
+    }
+
+    .boxy-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: 'Space Mono', monospace;
+    }
+
+    .boxy-table th {
+        background: black;
+        color: white;
+        text-align: left;
+        padding: 1rem;
+        border: 2px solid black;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+    }
+
+    .boxy-table td {
+        border: 2px solid black;
+        padding: 1rem;
+        background: white;
+        font-family: 'Space Grotesk', sans-serif;
+    }
+
+    /* Hover effect on rows */
+    .boxy-table tr:hover td {
+        background: #fff9db;
+        /* Light yellow hover */
+    }
+
+    /* --- Badges & Buttons --- */
+    .status-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border: 2px solid black;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        box-shadow: 2px 2px 0px black;
+    }
+
+    .status-active {
+        background-color: var(--success-bg);
+        color: black;
+    }
+
+    .status-inactive {
+        background-color: var(--inactive-bg);
+        color: black;
+    }
+
+    .btn-view {
+        display: inline-block;
+        text-decoration: none;
+        background: white;
+        color: black;
+        border: 2px solid black;
+        padding: 0.25rem 1rem;
+        font-size: 0.9rem;
+        font-weight: bold;
+        box-shadow: 2px 2px 0px var(--primary);
+        transition: transform 0.1s;
+    }
+
+    .btn-view:hover {
+        transform: translate(-1px, -1px);
+        box-shadow: 3px 3px 0px var(--primary);
+        background: #eff6ff;
+    }
+
+    .partial-due td {
+        background: #fef9c3 !important;
+        /* Soft Yellow */
+    }
+
+    .full-due td {
+        background: #fee2e2 !important;
+        /* Soft Red */
+    }
+
+    .boxy-table th,
+    .boxy-table td {
+        vertical-align: middle;
+    }
+</style>
+
+<div class="boxy-container">
+
+    <!-- Section 1: Add Member Block -->
+    <div class="boxy-card">
+        <div class="card-header-boxy">
+            <h2>Add New Member</h2>
+            <div style="font-size: 1.5rem;">+</div>
+        </div>
+        <div class="card-body-boxy">
+            <form method="POST" action="{{ url_for('api_v1.member.create_member') }}" class="add-member-form">
+                <input type="text" name="name" class="boxy-input" placeholder="FULL NAME" required>
+                <input type="text" name="phone_number" class="boxy-input" placeholder="PHONE NUMBER">
+                <button type="submit" class="btn-add" id="addMemberBtn">
+                    Add Member
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Section 2: Members List Block -->
+    <div class="boxy-card">
+        <div class="card-header-boxy" style="background: black;">
+            <!-- Header for the list is black for contrast -->
+            <h2 style="color: white;">Directory</h2>
+            <!-- Pure CSS Icon: Grid -->
+            <div style="display:flex; gap:2px;">
+                <div style="width:8px; height:8px; background:white;"></div>
+                <div style="width:8px; height:8px; background:white;"></div>
+                <div style="width:8px; height:8px; background:white;"></div>
+            </div>
+        </div>
+
+        <!-- No padding on body so table borders hit the edge -->
+        <div class="card-body-boxy" style="padding: 0;">
+            <div style="padding: 1rem; border-bottom: 2px solid black;">
+                <input type="text" id="memberSearch" placeholder="Search by name or phone..." class="boxy-input"
+                    style="width: 100%;">
+
+            </div>
+
+            <div class="table-container">
+                <table class="boxy-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Phone</th>
+                            <th>Status</th>
+                            <th>Balance</th>
+                            <th width="120">Action</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for member in members %}
+                        <tr class="
+                            {% if member.balance > 0 and member.balance < member.plan_amount %}
+                                partial-due
+                            {% elif member.balance >= member.plan_amount and member.plan_amount > 0 %}
+                                full-due
+                            {% endif %}
+                        ">
+                            <td style="font-weight: bold;">{{ member.name }}</td>
+                            <td>{{ member.phone_number }}</td>
+                            <td>
+                                {% if member.is_active %}
+                                <span class="status-badge status-active">Active</span>
+                                {% else %}
+                                <span class="status-badge status-inactive">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if member.balance > 0 %}
+                                <span class="status-badge" style="background:#f87171;">
+                                    ₹ {{ member.balance }}
+                                </span>
+                                {% elif member.balance == 0 and member.plan_amount > 0 %}
+                                <span class="status-badge" style="background:#4ade80;">
+                                    Paid
+                                </span>
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('api_v1.member.member_details', member_id=member.id) }}"
+                                    class="btn-view">
+                                    View
+                                </a>
+                            </td>
+                        </tr>
+
+                        {% else %}
+                        <tr>
+                            <td colspan="5" style="text-align:center; padding: 3rem; color: #666;">
+                                -- No members found in directory --
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div
+                    style="padding:1rem; text-align:center; font-family: 'Space Mono', monospace; border-top:2px solid black;">
+
+                    {% if page > 1 %}
+                    <a class="btn-view" href="{{ url_for('api_v1.member.list_member',
+                                        page=page-1,
+                                        search=request.args.get('search')) }}">
+                        Previous
+                    </a>
+                    {% endif %}
+
+                    <span style="margin: 0 1rem;">
+                        Page {{ page }} of {{ total_pages }}
+                    </span>
+
+                    {% if page < total_pages %} <a class="btn-view" href="{{ url_for('api_v1.member.list_member',
+                                        page=page+1,
+                                        search=request.args.get('search')) }}">
+                        Next
+                        </a>
+                        {% endif %}
+
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const searchInput = document.getElementById("memberSearch");
+    const tableBody = document.querySelector(".boxy-table tbody");
+
+    let debounceTimer;
+
+    searchInput.addEventListener("input", function () {
+
+        clearTimeout(debounceTimer);
+
+        debounceTimer = setTimeout(async () => {
+
+            const query = searchInput.value.trim();
+
+            const response = await fetch(`/member/search?q=${encodeURIComponent(query)}`);
+            const data = await response.json();
+
+            tableBody.innerHTML = "";
+
+            if (data.members.length === 0) {
+                tableBody.innerHTML = `
+                <tr>
+                    <td colspan="5" style="text-align:center; padding: 3rem; color: #666;">
+                        -- No members found --
+                    </td>
+                </tr>
+            `;
+                return;
+            }
+
+            data.members.forEach(member => {
+
+                let balanceDisplay = "-";
+
+                if (member.balance > 0) {
+                    balanceDisplay = `<span class="status-badge" style="background:#f87171;">
+                                    ₹ ${member.balance}
+                                  </span>`;
+                } else if (member.balance === 0 && member.plan_amount > 0) {
+                    balanceDisplay = `<span class="status-badge" style="background:#4ade80;">
+                                    Paid
+                                  </span>`;
+                }
+
+                tableBody.innerHTML += `
+                <tr>
+                    <td style="font-weight: bold;">${member.name}</td>
+                    <td>${member.phone}</td>
+                    <td>
+                        <span class="status-badge ${member.is_active ? 'status-active' : 'status-inactive'}">
+                            ${member.is_active ? 'Active' : 'Inactive'}
+                        </span>
+                    </td>
+                    <td>${balanceDisplay}</td>
+                    <td>
+                        <a href="/member/${member.id}" class="btn-view">View</a>
+                    </td>
+                </tr>
+            `;
+            });
+
+        }, 300); // debounce delay
+
+    });
+</script>
+<script>
+    const form = document.querySelector(".add-member-form");
+    const button = document.getElementById("addMemberBtn");
+
+    form.addEventListener("submit", function () {
+        if (button.disabled) return;
+
+        button.disabled = true;
+        button.innerText = "Adding...";
+    });
+</script>
+
+
+{% endblock %}
