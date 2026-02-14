@@ -4,6 +4,7 @@ from gym_saas.config import DevelopmentConfig
 from datetime import timedelta
 from flask import request, redirect, url_for, flash
 
+
 def is_browser():
     return "text/html" in request.headers.get("Accept", "")
 
@@ -80,10 +81,9 @@ def create_app():
     app.register_blueprint(api_v1)
     from gym_saas.app.routes.public import public_bp
     app.register_blueprint(public_bp)
-
-    app = create_app()
-
+    
     with app.app_context():
         db.create_all()
+
 
     return app
