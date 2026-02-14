@@ -82,8 +82,4 @@ def create_app():
     from gym_saas.app.routes.public import public_bp
     app.register_blueprint(public_bp)
     
-    with app.app_context():
-        db.create_all()
-
-
     return app
