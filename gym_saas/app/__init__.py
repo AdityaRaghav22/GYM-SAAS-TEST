@@ -68,7 +68,13 @@ def create_app():
 
     app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024  # 2MB limit
 
-    # import AFTER init
+    @app.after_request
+    def add_header(response):
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+        return response
+
     from . import models
     from .routes import api_v1
     app.register_blueprint(api_v1)
