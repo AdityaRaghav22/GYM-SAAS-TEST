@@ -71,7 +71,7 @@ def create_app():
             return redirect(url_for("gym_auth.login_page"))
         return {"msg": "invalid token"}, 401
 
-    app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024  # 2MB limit
+    app.config["MAX_CONTENT_LENGTH"] = 4 * 1024 * 1024  # 2MB limit
 
     @app.after_request
     def add_header(response):
