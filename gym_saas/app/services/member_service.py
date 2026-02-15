@@ -17,6 +17,9 @@ class MemberService:
   def create_member(gym_id, name, phone_number=None):
     if not all([gym_id, name]):
       return None, "All fields are required"
+      
+    phone_number = (phone_number or "").strip() or None
+    
 
     gym_id_valid, gym_id_error = validate_id(gym_id)
     if not gym_id_valid:

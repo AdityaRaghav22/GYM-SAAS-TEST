@@ -2,7 +2,7 @@ from sqlalchemy import DateTime
 from sqlalchemy.orm import Mapped, mapped_column
 from gym_saas.app.extensions import db
 from datetime import datetime
-
+from sqlalchemy import Index
 
 class Member(db.Model):
     __tablename__ = "members"        
@@ -31,9 +31,14 @@ class Member(db.Model):
                                         default=datetime.utcnow,
                                         index=True)
 
-    __table_args__ = (db.UniqueConstraint("gym_id",
-                                          "phone_number",
-                                          name="uq_member_phone_per_gym"), )
+    __table_args__ = (Index(
+    "uq_member_phone_per_gym",
+    "gym_id",
+    "phone_number",
+    unique=True,
+    postgresql_where=(phone_number.isnot(None))
+    ),
+    )
 
     memberships = db.relationship("Membership",
                                         backref="member",
