@@ -2,7 +2,7 @@ from sqlalchemy import DateTime
 from sqlalchemy.orm import Mapped, mapped_column
 from gym_saas.app.extensions import db
 from datetime import datetime
-from sqlalchemy import Index
+from sqlalchemy import Index, text
 
 class Member(db.Model):
     __tablename__ = "members"        
@@ -19,7 +19,8 @@ class Member(db.Model):
                                         index=True)
 
     phone_number: Mapped[str] = mapped_column(db.String(20),
-                                        index=True)
+                                        index=True,
+                                        nullable= True)
 
     is_active: Mapped[bool] = mapped_column(default=True)
 
@@ -36,7 +37,7 @@ class Member(db.Model):
     "gym_id",
     "phone_number",
     unique=True,
-    postgresql_where=(phone_number.isnot(None))
+    postgresql_where=text("phone_number IS NOT NULL")
     ),
     )
 
