@@ -232,48 +232,55 @@
                     <span>Member Info</span>
                     <div style="width:12px; height:12px; background:white; border:2px solid black;"></div>
                 </div>
+
                 <div class="card-body-boxy">
                     <!-- MEMBER PHOTO -->
-                    <div style="text-align:center; margin-bottom:1.5rem; display:flex; justify-content:center; align-items:center;">
+                    <div style="
+                        display:flex;
+                        flex-direction:column;
+                        align-items:center;
+                        justify-content:center;
+                        text-align:center;
+                        margin-bottom:1.5rem;
+                    ">
 
                         {% if member.image_url %}
-                            <img src="{{ member.image_url }}"
-                                 alt="Member Photo"
-                                 style="
-                                    width:340px;
-                                    height:340px;
+                        <img src="{{ member.image_url }}" alt="Member Photo" style="
+                                    width:250px;
+                                    height:250px;
                                     object-fit:cover;
                                     border:3px solid black;
                                     box-shadow:4px 4px 0px black;
+                                    margin-bottom:1rem;
                                  ">
                         {% else %}
-                            <div style="
-                                width:140px;
-                                height:140px;
+                        <div style="
+                                width:250px;
+                                height:250px;
                                 border:3px dashed black;
                                 display:flex;
                                 align-items:center;
                                 justify-content:center;
-                                margin:auto;
                                 font-family:'Space Mono';
-                                font-size:0.8rem;">
-                                NO PHOTO
-                            </div>
+                                font-size:0.8rem;
+                                margin-bottom:1rem;
+                            ">
+                            NO PHOTO
+                        </div>
                         {% endif %}
 
                         <!-- Upload Form -->
-                        <form method="POST"
-                              action="{{ url_for('api_v1.member.upload_photo', member_id=member.id) }}"
-                              enctype="multipart/form-data"
-                              style="margin-top:1rem;">
+                        <form method="POST" action="{{ url_for('api_v1.member.upload_photo', member_id=member.id) }}"
+                            enctype="multipart/form-data" style="
+                                display:flex;
+                                flex-direction:column;
+                                align-items:center;
+                                gap:0.5rem;
+                              ">
 
-                            <input type="file"
-                                   name="image"
-                                   accept="image/*"
-                                   required
-                                   class="boxy-input">
+                            <input type="file" name="image" accept="image/*" required class="boxy-input">
 
-                            <button class="btn-blocky btn-outline-success" style="margin-top:0.5rem;">
+                            <button class="btn-blocky btn-outline-success">
                                 Upload Photo
                             </button>
                         </form>
@@ -318,7 +325,7 @@
                     <span>Enrolled Plans</span>
                     <div style="border: 1px solid white; padding: 0 4px;">{{ memberships|length }}</div>
                 </div>
-                
+
                 <div class="card-body-boxy">
                     {% for m in memberships %}
                     <div class="sub-item">
