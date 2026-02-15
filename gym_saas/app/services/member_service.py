@@ -45,7 +45,7 @@ class MemberService:
           if not existing_member.is_active:
             existing_member.is_active = True
             db.session.commit()
-            return existing_member, None
+            return existing_member, "Reactivated inactive member"
 
           # already active → prevent duplicate
           return None, "Member with this phone number already exists"
