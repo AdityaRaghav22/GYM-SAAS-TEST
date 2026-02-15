@@ -13,4 +13,5 @@ dependencies = [
     "psycopg2-binary>=2.9.11",
     "python-dateutil>=2.9.0.post0",
     "python-dotenv>=1.2.1",
+    "cloudinary==1.41.0"
 ]
