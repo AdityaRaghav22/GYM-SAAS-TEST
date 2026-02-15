@@ -233,6 +233,53 @@
                     <div style="width:12px; height:12px; background:white; border:2px solid black;"></div>
                 </div>
                 <div class="card-body-boxy">
+                    <!-- MEMBER PHOTO -->
+                    <div style="text-align:center; margin-bottom:1.5rem;">
+
+                        {% if member.image_url %}
+                            <img src="{{ member.image_url }}"
+                                 alt="Member Photo"
+                                 style="
+                                    width:140px;
+                                    height:140px;
+                                    object-fit:cover;
+                                    border:3px solid black;
+                                    box-shadow:4px 4px 0px black;
+                                 ">
+                        {% else %}
+                            <div style="
+                                width:140px;
+                                height:140px;
+                                border:3px dashed black;
+                                display:flex;
+                                align-items:center;
+                                justify-content:center;
+                                margin:auto;
+                                font-family:'Space Mono';
+                                font-size:0.8rem;">
+                                NO PHOTO
+                            </div>
+                        {% endif %}
+
+                        <!-- Upload Form -->
+                        <form method="POST"
+                              action="{{ url_for('api_v1.member.upload_photo', member_id=member.id) }}"
+                              enctype="multipart/form-data"
+                              style="margin-top:1rem;">
+
+                            <input type="file"
+                                   name="image"
+                                   accept="image/*"
+                                   required
+                                   class="boxy-input">
+
+                            <button class="btn-blocky btn-outline-success" style="margin-top:0.5rem;">
+                                Upload Photo
+                            </button>
+                        </form>
+
+                    </div>
+
                     <form method="POST" action="{{ url_for('api_v1.member.update_member', member_id=member.id) }}">
                         <div class="form-group">
                             <label class="boxy-label">Full Name</label>

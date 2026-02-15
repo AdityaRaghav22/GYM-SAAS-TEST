@@ -2,6 +2,7 @@ from gym_saas.app.extensions import db
 from gym_saas.app.models import Gym, Member
 from gym_saas.app.utils.validation import validate_id, validate_name, validate_phone_number
 from gym_saas.app.utils.generate_id import generate_id
+from gym_saas.app.services.image_service import ImageService
 from sqlalchemy.exc import IntegrityError
 from typing import Optional
 from gym_saas.app.models import Membership
@@ -214,5 +215,26 @@ class MemberService:
       db.session.rollback()
       return None, "Something went wrong. Please try again."
 
+  @staticmethod
+  def upload_member_photo(gym_id, member_id, file):
+  
+    member = db.session.get(Member, member_id)
+  
+    if not member:
+        return None, "Member not found"
+  
+    image_url, error = ImageService.upload_member_image(
+        file,
+        gym_id,
+        member_id
+    )
+  
+    if error:
+        return None, error
+  
+    member.image_url = image_url
+    db.session.commit()
+  
+    return member, None
 
 # -- ../routes/member.py
