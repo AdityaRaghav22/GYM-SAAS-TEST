@@ -6,3 +6,4 @@ python-dotenv
 psycopg2-binary
 Flask-Bcrypt==1.0.1
 gunicorn
+cloudinary==1.41.0
