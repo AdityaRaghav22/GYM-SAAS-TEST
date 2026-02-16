@@ -71,7 +71,7 @@ def create_app():
             return redirect(url_for("gym_auth.login_page"))
         return {"msg": "invalid token"}, 401
 
-    app.config["MAX_CONTENT_LENGTH"] = 4 * 1024 * 1024  # 2MB limit
+    app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024  # 2MB limit
 
     @app.after_request
     def add_header(response):
@@ -85,8 +85,5 @@ def create_app():
     app.register_blueprint(api_v1)
     from gym_saas.app.routes.public import public_bp
     app.register_blueprint(public_bp)
-
-    with app.app_context():
-        db.create_all()
         
     return app
