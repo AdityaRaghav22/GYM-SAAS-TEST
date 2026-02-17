@@ -14,12 +14,15 @@ class ImageService:
                 resource_type="image",
 
                 # 🔥 automatic optimization
-                quality="auto",
+                quality="auto:eco",  # 🔥 change here
                 fetch_format="auto",
-            )
+                transformation=[{
+                    "width": 600,
+                    "height": 600,
+                    "crop": "limit"
+                }])
 
             return result["secure_url"], None
 
         except Exception as e:
             return None, str(e)
-            
