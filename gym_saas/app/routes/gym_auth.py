@@ -196,7 +196,7 @@ def reset_password(token: str):
 
     # ---------- Serve HTML page ----------
     if request.method == "GET":
-        return render_template("reset_password.html")
+        return render_template("reset_pass.html")
 
     # ---------- Handle password reset ----------
     data = request.get_json(silent=True) or {}

@@ -10,3 +10,4 @@ api_v1.register_blueprint(membership.membership_bp, url_prefix="/membership")
 api_v1.register_blueprint(payment.payment_bp, url_prefix="/payment")
 api_v1.register_blueprint(dashboard.dashboard_bp, url_prefix="/dashboard")
 api_v1.register_blueprint(public.public_bp, url_prefix= "/")
+
