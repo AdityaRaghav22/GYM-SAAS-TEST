@@ -24,6 +24,10 @@ class Gym(db.Model):
 
     created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
 
+    token: Mapped[str] = mapped_column(db.String(255), unique=True, nullable= True)
+
+    token_expiry: Mapped[datetime] = mapped_column(db.DateTime, nullable= True)
+
     users = db.relationship("User", backref="gym")
 
     members = db.relationship("Member", backref="gym", cascade="all, delete-orphan")
