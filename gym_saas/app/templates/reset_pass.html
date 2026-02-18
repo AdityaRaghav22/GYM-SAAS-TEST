@@ -99,7 +99,7 @@
             messageBox.className = "message";
 
             try {
-                const response = await fetch(`/reset-password/${token}`, {
+                const response = await fetch(`/gym/reset-password/${token}`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -120,7 +120,7 @@
                 messageBox.className = "message success";
 
                 setTimeout(() => {
-                    window.location.href = "/login";
+                    window.location.href = "/gym/login";
                 }, 2000);
 
             } catch (err) {

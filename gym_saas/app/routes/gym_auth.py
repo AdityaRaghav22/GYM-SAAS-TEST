@@ -189,11 +189,10 @@ def generate_reset_link():
 
 @gym_auth_bp.route("/reset-password/<token>", methods=["GET", "POST"])
 def reset_password(token: str):
-    """
-    GET  -> serve reset password page
-    POST -> set new password
-    """
-
+    
+    # GET  -> serve reset password page
+    # POST -> set new password
+    
     # ---------- Serve HTML page ----------
     if request.method == "GET":
         return render_template("reset_pass.html")
