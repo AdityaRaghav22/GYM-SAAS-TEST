@@ -157,23 +157,25 @@ def delete():
     flash(result["message"], "success")
     return response
 
-@gym_auth_bp.route("/refresh", methods=["POST"])
+@gym_auth_bp.route("/refresh", methods=["GET", "POST"])
 @jwt_required(refresh=True)
 def refresh():
+
     identity = get_jwt_identity()
 
     access_token, error = GymAuthService.refresh_access_token(identity)
 
     if error or not access_token:
-        response = make_response({"msg": "session expired"}, 401)
+        response = redirect(url_for("api_v1.gym_auth.login_page"))
         unset_jwt_cookies(response)
         return response
 
-    response = make_response({"msg": "refreshed"}, 200)
+    next_url = request.args.get("next") or url_for("api_v1.dashboard.home")
+
+    response = redirect(next_url)
     set_access_cookies(response, access_token)
+
     return response
-
-
 
 @gym_auth_bp.route("/admin/generate-reset-link", methods= ["POST"])
 def generate_reset_link():

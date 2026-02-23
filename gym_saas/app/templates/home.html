@@ -327,21 +327,7 @@
       </div>
     </div>
   </footer>
-  <script>
-    fetch("/gym/refresh", {
-      method: "POST",
-      credentials: "include"
-    })
-      .then(res => {
-        if (res.ok) {
-          window.location.replace("/dashboard/");
-        }
-      })
-      .catch(() => {
-        
-      });
-  </script>
-
+  
 </body>
 
 </html>
