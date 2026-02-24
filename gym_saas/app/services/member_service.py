@@ -9,6 +9,7 @@ from gym_saas.app.models import Membership
 from gym_saas.app.models import Payment
 from gym_saas.app.models import Plan
 from sqlalchemy import func
+from decimal import Decimal
 
 
 class MemberService:
@@ -104,14 +105,21 @@ class MemberService:
     members = []
 
     for member, membership, plan, total_paid in results:
-      if membership and plan:
-        plan_amount = plan.price
-        balance = plan_amount - total_paid
-      else:
-        plan_amount = 0
-        balance = 0
 
-      member.plan_amount = plan_amount
+      if membership:
+        payable_amount = Decimal(str(membership.effective_price))
+        total_paid = Decimal(str(total_paid))
+
+        balance = max(
+            payable_amount - total_paid,
+            Decimal("0")
+        )
+      else:
+        payable_amount = Decimal("0")
+        total_paid = Decimal("0")
+        balance = Decimal("0")
+
+      member.payable_amount = payable_amount
       member.total_paid = total_paid
       member.balance = balance
 
