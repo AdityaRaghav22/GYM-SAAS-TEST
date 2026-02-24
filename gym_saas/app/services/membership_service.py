@@ -137,6 +137,7 @@ class MembershipService:
     new_start = now
     new_end = new_start + relativedelta(months=plan.duration_months)
 
+      
     original_price = Decimal(str(plan.price))
 
     if discount is not None:
@@ -149,6 +150,9 @@ class MembershipService:
 
     effective_price = max(original_price - discount_amount, Decimal("0"))
 
+    if amount_paid is not None:
+      amount_paid = Decimal(str(amount_paid))
+      
     # 🔐 PAYMENT LOGIC (balance-aware)
     if amount_paid is None:
       amount_paid = effective_price  # default full price

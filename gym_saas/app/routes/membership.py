@@ -114,6 +114,9 @@ def renew_membership(membership_id):
     raw_amount = data.get("amount_paid")
     discount = data.get("discount")
     payment_method = data.get("payment_method", "cash")
+    
+    if raw_amount is not None:
+        raw_amount = Decimal(str(raw_amount))
 
     # normalize discount
     try:

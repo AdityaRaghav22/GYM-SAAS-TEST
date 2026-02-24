@@ -271,18 +271,16 @@
                     <tbody>
                         {% for member in members %}
                         <tr class="
-                            {% if member.balance > 0 and member.balance < member.plan_amount %}
+                            {% if member.balance > 0 and member.balance < member.payable_amount %}
                                 partial-due
-                            {% elif member.balance >= member.plan_amount and member.plan_amount > 0 %}
+                            {% elif member.balance >= member.payable_amount and member.payable_amount > 0 %}
                                 full-due
                             {% endif %}
                         ">
                             <td>
                                 {% if member.image_url %}
-                                    <img src="{{ member.image_url.replace('/upload/', '/upload/w_60,h_60,c_fill,q_auto/') }}"
-                                         alt="photo"
-                                        loading="lazy"
-                                         style="
+                                <img src="{{ member.image_url.replace('/upload/', '/upload/w_60,h_60,c_fill,q_auto/') }}"
+                                    alt="photo" loading="lazy" style="
                                             width:70px;
                                             height:70px;
                                             object-fit:cover;
@@ -290,7 +288,7 @@
                                             box-shadow:2px 2px 0px black;
                                          ">
                                 {% else %}
-                                    <div style="
+                                <div style="
                                         width:50px;
                                         height:50px;
                                         border:2px dashed black;
@@ -300,8 +298,8 @@
                                         font-size:10px;
                                         font-family:'Space Mono';
                                     ">
-                                        N/A
-                                    </div>
+                                    N/A
+                                </div>
                                 {% endif %}
                             </td>
 
@@ -319,7 +317,7 @@
                                 <span class="status-badge" style="background:#f87171;">
                                     ₹ {{ member.balance }}
                                 </span>
-                                {% elif member.balance == 0 and member.plan_amount > 0 %}
+                                {% elif member.balance == 0 and member.payable_amount > 0 %}
                                 <span class="status-badge" style="background:#4ade80;">
                                     Paid
                                 </span>
@@ -407,33 +405,56 @@
 
             data.members.forEach(member => {
 
-                let balanceDisplay = "-";
+                const payable = member.payable_amount || 0;
+                const balance = member.balance || 0;
 
-                if (member.balance > 0) {
-                    balanceDisplay = `<span class="status-badge" style="background:#f87171;">
-                                    ₹ ${member.balance}
-                                  </span>`;
-                } else if (member.balance === 0 && member.plan_amount > 0) {
-                    balanceDisplay = `<span class="status-badge" style="background:#4ade80;">
-                                    Paid
-                                  </span>`;
+                let rowClass = "";
+
+                if (payable > 0 && balance > 0 && balance < payable) {
+                    rowClass = "partial-due";
+                } else if (payable > 0 && balance >= payable) {
+                    rowClass = "full-due";
                 }
 
+                let balanceDisplay = "-";
+
+                if (balance > 0) {
+                    balanceDisplay = `
+                        <span class="status-badge" style="background:#f87171;">
+                            ₹ ${balance}
+                        </span>`;
+                } else if (balance === 0 && payable > 0) {
+                    balanceDisplay = `
+                        <span class="status-badge" style="background:#4ade80;">
+                            Paid
+                        </span>`;
+                }
+
+                const photo = member.image_url
+                    ? `<img src="${member.image_url}"
+                           style="width:70px;height:70px;object-fit:cover;border:2px solid black;box-shadow:2px 2px 0px black;">`
+                    : `<div style="width:50px;height:50px;border:2px dashed black;
+                                   display:flex;align-items:center;justify-content:center;
+                                   font-size:10px;font-family:'Space Mono';">N/A</div>`;
+
                 tableBody.innerHTML += `
-                <tr>
-                    <td style="font-weight: bold;">${member.name}</td>
-                    <td>${member.phone}</td>
-                    <td>
-                        <span class="status-badge ${member.is_active ? 'status-active' : 'status-inactive'}">
-                            ${member.is_active ? 'Active' : 'Inactive'}
-                        </span>
-                    </td>
-                    <td>${balanceDisplay}</td>
-                    <td>
-                        <a href="/member/${member.id}" class="btn-view">View</a>
-                    </td>
-                </tr>
-            `;
+                    <tr class="${rowClass}">
+                        <td>${photo}</td>
+                        <td style="font-weight:bold;">${member.name}</td>
+                        <td>${member.phone_number}</td>
+                        <td>
+                            <span class="status-badge ${member.is_active ? 'status-active' : 'status-inactive'}">
+                                ${member.is_active ? 'Active' : 'Inactive'}
+                            </span>
+                        </td>
+                        <td>${balanceDisplay}</td>
+                        <td>
+                            <a href="/member/${member.id}/details" class="btn-view">
+                                View
+                            </a>
+                        </td>
+                    </tr>
+                `;
             });
 
         }, 300); // debounce delay
