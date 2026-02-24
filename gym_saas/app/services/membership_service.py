@@ -13,7 +13,11 @@ from sqlalchemy import case
 class MembershipService:
 
   @staticmethod
-  def create_membership(gym_id, member_id, plan_id, start_date=None, discount = None):
+  def create_membership(gym_id,
+                        member_id,
+                        plan_id,
+                        start_date=None,
+                        discount=None):
     if not all([gym_id, member_id, plan_id]):
       return None, "All fields are required"
 
@@ -57,6 +61,18 @@ class MembershipService:
 
     status = "scheduled" if start_date > datetime.utcnow() else "active"
 
+    original_price = Decimal(str(plan.price))
+
+    if discount is not None:
+      discount_amount = Decimal(str(discount))
+
+      if discount_amount > original_price:
+        return None, "Discount cannot exceed original price"
+    else:
+      discount_amount = Decimal("0")
+
+    effective_price = max(original_price - discount_amount, Decimal("0"))
+
     membership = Membership(id=generate_id(),
                             gym_id=gym_id,
                             member_id=member_id,
@@ -64,6 +80,9 @@ class MembershipService:
                             start_date=start_date,
                             end_date=end_date,
                             status=status,
+                            original_price=float(original_price),
+                            effective_price=float(effective_price),
+                            discount_amount=float(discount_amount),
                             is_active=True)
 
     try:
@@ -77,7 +96,8 @@ class MembershipService:
   @staticmethod
   def renew_membership(gym_id,
                        membership_id,
-                       amount=None,
+                       amount_paid=None,
+                       discount=None,
                        payment_method="cash"):
     for value in [gym_id, membership_id]:
       valid, err = validate_id(value)
@@ -117,6 +137,22 @@ class MembershipService:
     new_start = now
     new_end = new_start + relativedelta(months=plan.duration_months)
 
+    original_price = Decimal(str(plan.price))
+
+    if discount is not None:
+      discount_amount = Decimal(str(discount))
+
+      if discount_amount > original_price:
+        return None, "Discount cannot exceed original price"
+    else:
+      discount_amount = Decimal("0")
+
+    effective_price = max(original_price - discount_amount, Decimal("0"))
+
+    # 🔐 PAYMENT LOGIC (balance-aware)
+    if amount_paid is None:
+      amount_paid = effective_price  # default full price
+
     renewed = Membership(id=generate_id(),
                          gym_id=gym_id,
                          member_id=membership.member_id,
@@ -124,6 +160,9 @@ class MembershipService:
                          start_date=new_start,
                          end_date=new_end,
                          status="active",
+                         original_price=float(original_price),
+                         effective_price=float(effective_price),
+                         discount_amount=float(discount_amount),
                          is_active=True)
 
     try:
@@ -133,16 +172,12 @@ class MembershipService:
       db.session.add(renewed)
       db.session.flush()  # 🔑 IMPORTANT
 
-      # 🔐 PAYMENT LOGIC (balance-aware)
-      if amount is None:
-        amount = plan.price  # default full price
-
-      if amount > 0:
+      if amount_paid > 0:
         # 🔐 Create payment for the renewed membership
-        amount = Decimal(amount)
+        amount_paid = Decimal(amount_paid)
         PaymentService.create_payment(gym_id=gym_id,
                                       membership_id=renewed.id,
-                                      amount=amount,
+                                      amount=amount_paid,
                                       payment_method=payment_method)
 
       db.session.commit()
@@ -269,13 +304,14 @@ class MembershipService:
 
   @staticmethod
   def get_membership_balance(gym_id, membership) -> Decimal:
-    gym_id_valid, gym_id_err = validate_id(gym_id)
-    if not gym_id_valid:
+    valid, _ = validate_id(gym_id)
+    if not valid:
       return Decimal("0")
+
     total_paid = PaymentService.get_total_paid_for_membership(
         gym_id, membership.id)
 
-    balance = membership.plan.price - total_paid
+    balance = Decimal(str(membership.effective_price)) - total_paid
 
     return max(balance, Decimal("0"))
 

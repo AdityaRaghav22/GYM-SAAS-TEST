@@ -8,6 +8,8 @@ from gym_saas.app.services.payment_service import PaymentService
 from gym_saas.app.services.plan_service import PlanService
 from gym_saas.app.utils.validation import validate_id
 
+from decimal import Decimal
+
 member_bp = Blueprint("member", __name__)
 
 
@@ -110,14 +112,16 @@ def member_details(member_id):
             return redirect(request.url)
 
         total_paid = PaymentService.get_total_paid_for_membership(
-            gym_id, membership.id)
+            gym_id, membership.id
+        )
 
-        balance = membership.plan.price - total_paid
+        effective_price = Decimal(str(membership.effective_price))
+        balance = effective_price - total_paid
 
         if balance <= 0:
             flash("No balance to clear", "info")
             return redirect(request.url)
-
+    
         # 🔐 Create payment for remaining balance
         PaymentService.create_payment(gym_id=gym_id,
                                       membership_id=membership.id,
@@ -140,17 +144,23 @@ def member_details(member_id):
     memberships = memberships or []
 
     # --- Totals ---
-    overall_plan_total = 0
-    overall_paid = 0
-    overall_balance = 0
+    overall_payable_total = Decimal("0")
+    overall_paid = Decimal("0")
+    overall_balance = Decimal("0")
 
     for m in memberships:
-        total_paid = PaymentService.get_total_paid_for_membership(gym_id, m.id)
-        plan_amount = m.plan.price
+        total_paid = PaymentService.get_total_paid_for_membership(
+            gym_id, m.id
+        )
 
-        overall_plan_total += plan_amount
+        effective_price = Decimal(str(m.effective_price))
+
+        overall_payable_total += effective_price
         overall_paid += total_paid
-        overall_balance += max(plan_amount - total_paid, 0)
+        overall_balance += max(
+            effective_price - total_paid,
+            Decimal("0")
+        )
 
     payments, _ = PaymentService.list_payments_by_member(gym_id, member_id)
     plans, _ = PlanService.list_plans(gym_id)
@@ -160,7 +170,7 @@ def member_details(member_id):
                            memberships=memberships,
                            payments=payments or [],
                            plans=plans,
-                           overall_plan_total=overall_plan_total,
+                           overall_payable_total=overall_payable_total,
                            overall_paid=overall_paid,
                            overall_balance=overall_balance)
 

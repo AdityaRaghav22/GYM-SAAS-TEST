@@ -346,6 +346,18 @@
 
                         <form method="POST"
                             action="{{ url_for('api_v1.membership.renew_membership', membership_id=m.id) }}">
+
+                            <!-- Discount -->
+                            <div class="form-group">
+                                <label class="boxy-label">Discount (₹)</label>
+                                <input type="number"
+                                       name="discount"
+                                       class="boxy-input"
+                                       placeholder="Optional discount"
+                                       min="0"
+                                       step="0.01">
+                            </div>
+                            
                             <!-- Paid Amount -->
                             <div class="form-group">
                                 <label class="boxy-label">Amount Paid</label>
@@ -410,6 +422,18 @@
                                 <option value="card">Card</option>
                             </select>
                         </div>
+
+                        <!-- Discount -->
+                        <div class="form-group">
+                            <label class="boxy-label">Discount (₹)</label>
+                            <input type="number"
+                                   name="discount"
+                                   class="boxy-input"
+                                   placeholder="Optional discount"
+                                   min="0"
+                                   step="0.01">
+                        </div>
+                        
                         <!-- Paid Amount -->
                         <div class="form-group">
                             <label class="boxy-label">Amount Paid</label>
@@ -465,7 +489,7 @@
                     <div class="sub-item">
                         <div class="boxy-label">Total Plan Amount</div>
                         <div style="font-size:1.3rem; font-weight:bold;">
-                            ₹{{ overall_plan_total }}
+                            ₹{{ overall_payable_total }}
                         </div>
                     </div>
 

@@ -35,6 +35,14 @@ class Membership(db.Model):
                                                nullable=False,
                                                index=True)
 
+    original_price: Mapped[float] = mapped_column(db.Float, nullable=False)
+
+    discount_amount: Mapped[float] = mapped_column(db.Float, default=0.0)
+
+    amount_paid: Mapped[float] = mapped_column(db.Float, default=0.0)
+
+    effective_price: Mapped[float] = mapped_column(db.Float, nullable=False)
+
     status: Mapped[str] = mapped_column(db.Enum("active",
                                                 "expired",
                                                 "cancelled",

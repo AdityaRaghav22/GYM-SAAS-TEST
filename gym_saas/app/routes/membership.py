@@ -1,5 +1,7 @@
+from enum import member
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from sqlalchemy import exists
 from gym_saas.app.services.membership_service import MembershipService
 from gym_saas.app.services.payment_service import PaymentService
 from gym_saas.app.services.plan_service import PlanService
@@ -18,6 +20,14 @@ def create_membership():
     member_id = data.get("member_id")
     plan_id = data.get("plan_id")
     payment_method = data.get("payment_method")
+    discount = data.get("discount")
+
+    try:
+        discount = (Decimal(discount) if discount not in (None, "",
+                                                          " ") else None)
+    except InvalidOperation:
+        flash("Invalid discount value", "error")
+        return redirect(url_for("api_v1.dashboard.home"))
 
     for value in [gym_id, member_id, plan_id]:
         valid, err = validate_id(value)
@@ -28,7 +38,7 @@ def create_membership():
     start_date = data.get("start_date")
 
     membership, error = MembershipService.create_membership(
-        gym_id, member_id, plan_id, start_date)
+        gym_id, member_id, plan_id, start_date, discount)
 
     if error:
         flash(error, "error")
@@ -38,21 +48,14 @@ def create_membership():
         flash("Failed to create membership", "error")
         return redirect(url_for("api_v1.dashboard.home"))
 
-    plan, error = PlanService.get_plan(gym_id, plan_id)
-    if error:
-        flash(error, "error")
-        return redirect(url_for("api_v1.dashboard.home"))
-
-    if plan is None:
-        flash("Plan not found", "error")
-        return redirect(url_for("api_v1.dashboard.home"))
-
     raw_amount = data.get("amount_paid")
+
+    effective_price = Decimal(str(membership.effective_price))
 
     try:
         if raw_amount in (None, "", " "):
             # 👇 default to FULL payment
-            amount_paid = Decimal(plan.price)
+            amount_paid = Decimal(effective_price)
         else:
             amount_paid = Decimal(raw_amount or 0)
     except (InvalidOperation, TypeError):
@@ -63,8 +66,8 @@ def create_membership():
         flash("Paid amount must be greater than zero", "error")
         return redirect(url_for("api_v1.dashboard.home"))
 
-    if amount_paid > plan.price:
-        flash("Paid amount cannot exceed plan price", "error")
+    if amount_paid > effective_price:
+        flash("Paid amount cannot exceed payable price", "error")
         return redirect(url_for("api_v1.dashboard.home"))
 
     payment, error = PaymentService.create_payment(gym_id, membership.id,
@@ -100,6 +103,7 @@ def list_membership():
 @jwt_required()
 def renew_membership(membership_id):
     gym_id = get_jwt_identity()
+    data = request.form
 
     for value in [gym_id, membership_id]:
         valid, err = validate_id(value)
@@ -107,26 +111,30 @@ def renew_membership(membership_id):
             flash(err or "Invalid ID", "error")
             return redirect(url_for("api_v1.membership.list_membership"))
 
-    amount = request.form.get("amount_paid", type=float)
-    payment_method = request.form.get("payment_method", "cash")
+    raw_amount = data.get("amount_paid")
+    discount = data.get("discount")
+    payment_method = data.get("payment_method", "cash")
 
-    membership, error = MembershipService.renew_membership(
-        gym_id, membership_id, amount, payment_method)
+    # normalize discount
+    try:
+        discount = Decimal(discount) if discount not in ("", None, " ") else None
+    except InvalidOperation:
+        flash("Invalid discount value", "error")
+        return redirect(url_for("api_v1.membership.list_membership"))
 
+    renewed_membership, error = MembershipService.renew_membership(gym_id, membership_id, raw_amount, discount, payment_method)
     if error:
         flash(error, "error")
         return redirect(url_for("api_v1.membership.list_membership"))
 
-    if membership is None:
+    if renewed_membership is None:
         flash("Failed to renew membership", "error")
         return redirect(url_for("api_v1.membership.list_membership"))
 
     flash("Membership renewed successfully", "success")
 
-    # ✅ Redirect to SAME MEMBER DETAILS PAGE
     return redirect(
-        url_for("api_v1.member.member_details", member_id=membership.member_id))
-
+        url_for("api_v1.member.member_details", member_id=renewed_membership.member_id))
 
 @membership_bp.route("/<membership_id>/deactivate", methods=["POST"])
 @jwt_required()
