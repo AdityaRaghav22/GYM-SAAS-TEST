@@ -18,9 +18,8 @@ class MemberService:
   def create_member(gym_id, name, phone_number=None):
     if not all([gym_id, name]):
       return None, "All fields are required"
-      
+
     phone_number = (phone_number or "").strip() or None
-    
 
     gym_id_valid, gym_id_error = validate_id(gym_id)
     if not gym_id_valid:
@@ -40,20 +39,18 @@ class MemberService:
         return None, phone_error
 
       existing_member = Member.query.filter(
-        Member.gym_id == gym_id,
-        Member.phone_number == phone_number
-      ).first()
+          Member.gym_id == gym_id,
+          Member.phone_number == phone_number).first()
 
       if existing_member:
-          # inactive → reactivate
-          if not existing_member.is_active:
-            existing_member.is_active = True
-            db.session.commit()
-            return existing_member, "Reactivated inactive member"
+        # inactive → reactivate
+        if not existing_member.is_active:
+          existing_member.is_active = True
+          db.session.commit()
+          return existing_member, "Reactivated inactive member"
 
-          # already active → prevent duplicate
-          return None, "Member with this phone number already exists"
-
+        # already active → prevent duplicate
+        return None, "Member with this phone number already exists"
 
     try:
       member = Member(id=generate_id(),
@@ -73,34 +70,55 @@ class MemberService:
       return None, str(e)
 
   @staticmethod
-  def list_members(gym_id, page=1, per_page=20, search = None):
+  def list_members(gym_id, page=1, per_page=20, search=None):
 
     payment_subquery = (db.session.query(
         Payment.membership_id,
-        func.coalesce(func.sum(Payment.amount),
-                      0).label("total_paid")).group_by(
-                          Payment.membership_id).subquery())
+        func.coalesce(func.sum(Payment.amount),0).label("total_paid")).group_by(Payment.membership_id).subquery())
 
-    base_query = (db.session.query(
-        Member, Membership, Plan,
-        func.coalesce(payment_subquery.c.total_paid, 0)).outerjoin(
-            Membership, Membership.member_id == Member.id).outerjoin(
-                Plan, Plan.id == Membership.plan_id).outerjoin(
-                    payment_subquery, payment_subquery.c.membership_id ==
-                    Membership.id).filter(Member.gym_id == gym_id))
-
+    latest_membership_subq = (
+        db.session.query(
+            Membership.member_id,
+            func.max(Membership.created_at).label("latest_created")
+        )
+        .filter(Membership.is_active.is_(True))
+        .group_by(Membership.member_id)
+        .subquery()
+    )
+    
+    base_query = (
+        db.session.query(
+            Member,
+            Membership,
+            Plan,
+            func.coalesce(payment_subquery.c.total_paid, 0)
+        )
+        .outerjoin(
+            latest_membership_subq,
+            latest_membership_subq.c.member_id == Member.id
+        )
+        .outerjoin(
+            Membership,
+            db.and_(
+                Membership.member_id == Member.id,
+                Membership.created_at == latest_membership_subq.c.latest_created
+            )
+        )
+        .outerjoin(Plan, Plan.id == Membership.plan_id)
+        .outerjoin(
+            payment_subquery,
+            payment_subquery.c.membership_id == Membership.id
+        )
+        .filter(Member.gym_id == gym_id)
+    )
     if search:
       base_query = base_query.filter(
-          db.or_(
-              Member.name.ilike(f"{search}%"),
-              Member.phone_number.ilike(f"{search}%")
-          )
-      )
+          db.or_(Member.name.ilike(f"{search}%"),
+                 Member.phone_number.ilike(f"{search}%")))
 
     total = base_query.count()
 
-    results = (base_query.limit(per_page).offset(
-        (page - 1) * per_page).all())
+    results = (base_query.limit(per_page).offset((page - 1) * per_page).all())
 
     members = []
 
@@ -110,10 +128,7 @@ class MemberService:
         payable_amount = Decimal(str(membership.effective_price))
         total_paid = Decimal(str(total_paid))
 
-        balance = max(
-            payable_amount - total_paid,
-            Decimal("0")
-        )
+        balance = max(payable_amount - total_paid, Decimal("0"))
       else:
         payable_amount = Decimal("0")
         total_paid = Decimal("0")
@@ -235,24 +250,22 @@ class MemberService:
 
   @staticmethod
   def upload_member_photo(gym_id, member_id, file):
-  
+
     member = db.session.get(Member, member_id)
-  
+
     if not member:
-        return None, "Member not found"
-  
+      return None, "Member not found"
+
     image_url, error = ImageService.upload_member_image(
-        file,
-        gym_id,
-        member_id
-    )
-  
+        file, gym_id, member_id)
+
     if error:
-        return None, error
-  
+      return None, error
+
     member.image_url = image_url
     db.session.commit()
-  
+
     return member, None
+
 
 # -- ../routes/member.py
