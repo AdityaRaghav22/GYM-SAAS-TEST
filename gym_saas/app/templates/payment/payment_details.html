@@ -200,6 +200,38 @@
                 <span class="receipt-value">{{ membership.end_date.strftime('%d %b %Y')  }}</span>
             </div>
 
+            <div class="dashed-line"></div>
+
+            <div style="margin-bottom: 0.5rem; font-weight: bold; text-transform: uppercase;">
+                Pricing
+            </div>
+
+            <!-- Original Price -->
+            <div class="receipt-row">
+                <span class="receipt-label">Original Price</span>
+                <span class="receipt-value">
+                    ₹{{ membership.original_price }}
+                </span>
+            </div>
+
+            <!-- Discount (only if applied) -->
+            {% if membership.discount_amount and membership.discount_amount > 0 %}
+            <div class="receipt-row">
+                <span class="receipt-label">Discount</span>
+                <span class="receipt-value" style="color:#16a34a;">
+                    − ₹{{ membership.discount_amount }}
+                </span>
+            </div>
+            {% endif %}
+
+            <!-- Payable Amount -->
+            <div class="receipt-row">
+                <span class="receipt-label">Payable Amount</span>
+                <span class="receipt-value">
+                    ₹{{ membership.effective_price }}
+                </span>
+            </div>
+
         </div>
 
         <!-- Total -->
