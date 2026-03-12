@@ -317,7 +317,7 @@
                                 <span class="status-badge" style="background:#f87171;">
                                     ₹ {{ member.balance }}
                                 </span>
-                                {% elif member.balance == 0 and member.plan_amount > 0 %}
+                                {% elif member.balance == 0 and member.payable_amount > 0 %}
                                 <span class="status-badge" style="background:#4ade80;">
                                     Paid
                                 </span>
