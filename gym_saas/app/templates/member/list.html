@@ -271,9 +271,9 @@
                     <tbody>
                         {% for member in members %}
                         <tr class="
-                            {% if member.balance > 0 and member.balance < member.plan_amount %}
+                            {% if member.balance > 0 and member.balance < member.payable_amount %}
                                 partial-due
-                            {% elif member.balance >= member.plan_amount and member.plan_amount > 0 %}
+                            {% elif member.balance >= member.payable_amount and member.plan_amount > 0 %}
                                 full-due
                             {% endif %}
                         ">

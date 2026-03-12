@@ -34,6 +34,7 @@ def create_member():
     flash("Member created successfully", "success")
     return redirect(url_for("api_v1.dashboard.home"))
 
+
 @member_bp.route("/list", methods=["GET"])
 @jwt_required()
 def list_member():
@@ -53,6 +54,7 @@ def list_member():
                            members=members,
                            page=page,
                            total_pages=total_pages)
+
 
 @member_bp.route("/search", methods=["GET"])
 @jwt_required()
@@ -112,8 +114,7 @@ def member_details(member_id):
             return redirect(request.url)
 
         total_paid = PaymentService.get_total_paid_for_membership(
-            gym_id, membership.id
-        )
+            gym_id, membership.id)
 
         effective_price = Decimal(str(membership.effective_price))
         balance = effective_price - total_paid
@@ -121,7 +122,7 @@ def member_details(member_id):
         if balance <= 0:
             flash("No balance to clear", "info")
             return redirect(request.url)
-    
+
         # 🔐 Create payment for remaining balance
         PaymentService.create_payment(gym_id=gym_id,
                                       membership_id=membership.id,
@@ -149,18 +150,13 @@ def member_details(member_id):
     overall_balance = Decimal("0")
 
     for m in memberships:
-        total_paid = PaymentService.get_total_paid_for_membership(
-            gym_id, m.id
-        )
+        total_paid = PaymentService.get_total_paid_for_membership(gym_id, m.id)
 
         effective_price = Decimal(str(m.effective_price))
 
         overall_payable_total += effective_price
         overall_paid += total_paid
-        overall_balance += max(
-            effective_price - total_paid,
-            Decimal("0")
-        )
+        overall_balance += max(effective_price - total_paid, Decimal("0"))
 
     payments, _ = PaymentService.list_payments_by_member(gym_id, member_id)
     plans, _ = PlanService.list_plans(gym_id)
@@ -223,6 +219,7 @@ def deactivate_member(member_id):
 
     return redirect(url_for("api_v1.member.list_member"))
 
+
 @member_bp.route("/<member_id>/upload-photo", methods=["POST"])
 @jwt_required()
 def upload_photo(member_id):
@@ -232,21 +229,13 @@ def upload_photo(member_id):
 
     if not file:
         flash("No image selected", "error")
-        return redirect(url_for(
-            "api_v1.member.member_details",
-            member_id=member_id
-        ))
+        return redirect(
+            url_for("api_v1.member.member_details", member_id=member_id))
 
-    _, error = MemberService.upload_member_photo(
-        gym_id,
-        member_id,
-        file
-    )
+    _, error = MemberService.upload_member_photo(gym_id, member_id, file)
 
     if error:
         flash(error, "error")
 
-    return redirect(url_for(
-        "api_v1.member.member_details",
-        member_id=member_id
-    ))
+    return redirect(
+        url_for("api_v1.member.member_details", member_id=member_id))
